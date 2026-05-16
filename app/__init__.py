@@ -1,6 +1,6 @@
 import os
-from flask import Flask, redirect, url_for, render_template
-from flask_login import LoginManager
+from flask import Flask, redirect, url_for, render_template, render_template_string
+from flask_login import LoginManager, login_required, current_user
 from app.models import db, User
 from config import config
 
@@ -36,8 +36,19 @@ def create_app(config_name="default"):
 
     # Temporary root route until Role 2 implements the lobby
     @app.route("/")
+    @login_required
     def index():
-        return redirect(url_for("auth.login"))
+        from flask import render_template_string
+        return render_template_string("""
+            <!DOCTYPE html>
+            <html><head><title>TriviaApp</title></head>
+            <body style="background:#0f0a1e;color:#f1f5f9;font-family:sans-serif;text-align:center;padding:4rem">
+                <h1 style="color:#fbbf24">🎮 TriviaApp</h1>
+                <p>Welcome, <strong>{{ current_user.username }}</strong>!</p>
+                <p style="color:#94a3b8;margin-top:1rem">Game lobby coming soon (Role 2).</p>
+                <a href="/auth/logout" style="color:#7c3aed">Log out</a>
+            </body></html>
+        """)
 
     # Error handlers
     @app.errorhandler(404)
