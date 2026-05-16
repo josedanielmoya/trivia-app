@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TriviaApp{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="navbar-brand">🎮 TriviaApp</a>
+        <div class="navbar-links">
+            {% if current_user.is_authenticated %}
+                <span class="nav-user">👤 {{ current_user.username }}</span>
+                {# Uncomment when other roles are ready: #}
+                {# <a href="{{ url_for('stats.ranking') }}">🏆 Ranking</a> #}
+                {# <a href="{{ url_for('stats.profile') }}">📊 Profile</a> #}
+                {% if current_user.is_admin %}
+                    {# <a href="{{ url_for('admin.dashboard') }}">⚙️ Admin</a> #}
+                {% endif %}
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline">Log Out</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline">Log In</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>TriviaApp · Scripting Languages Project · 2025</p>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
