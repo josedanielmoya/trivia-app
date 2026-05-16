@@ -2,10 +2,11 @@ Flask==3.0.3
 Flask-Login==0.6.3
 Flask-WTF==1.2.1
 Flask-SQLAlchemy==3.1.1
-SQLAlchemy==2.0.30
+SQLAlchemy==2.0.41
 Werkzeug==3.0.3
 requests==2.32.3
 matplotlib==3.10.9
 numpy==2.3.5
 WTForms==3.1.2
 python-dotenv==1.0.1
+email-validator==2.2.0
