@@ -1,0 +1,26 @@
+    [
+  {
+    "category": "Science: Computers",
+    "type": "multiple",
+    "difficulty": "medium",
+    "question": "What does CPU stand for?",
+    "correct_answer": "Central Processing Unit",
+    "incorrect_answers": ["Central Process Unit", "Computer Personal Unit", "Central Processor Unit"]
+  },
+  {
+    "category": "General Knowledge",
+    "type": "multiple",
+    "difficulty": "medium",
+    "question": "Which of these colors is NOT featured in the logo for Google?",
+    "correct_answer": "Pink",
+    "incorrect_answers": ["Yellow", "Blue", "Green"]
+  },
+  {
+    "category": "Science: Computers",
+    "type": "multiple",
+    "difficulty": "medium",
+    "question": "In programming, what do you call a function that calls itself?",
+    "correct_answer": "Recursion",
+    "incorrect_answers": ["Looping", "Iterating", "Delegation"]
+  }
+]
