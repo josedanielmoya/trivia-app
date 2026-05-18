@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; padding: 2rem; background: #1e1e2f; border-radius: 8px;">
+    <h3>Pregunta {{ q_num }} de {{ game.num_questions }}</h3>
+    <p style="font-size: 1.2rem; margin-bottom: 2rem;">{{ question.question }}</p>
+    
+    <form method="POST" action="{{ url_for('game.submit_answer', code=game.code) }}">
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
+            {% for option in question.all_answers %}
+            <label style="background: #2a2a40; padding: 15px; border-radius: 5px; cursor: pointer;">
+                <input type="radio" name="answer" value="{{ option }}" required>
+                {{ option }}
+            </label>
+            {% endfor %}
+        </div>
+        
+        <input type="hidden" name="time_taken" value="5.0">
+        
+        <button type="submit" style="width: 100%; padding: 15px; background: #7c3aed; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+            Enviar Respuesta
+        </button>
+    </form>
+</div>
+{% endblock %}

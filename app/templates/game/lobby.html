@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="text-align: center; padding: 2rem;">
+    <h2>⏳ Sala de espera: {{ game.code }}</h2>
+    <p>Estado actual: <strong>{{ game.status }}</strong></p>
+    <div style="margin: 2rem; padding: 1rem; border: 2px dashed #fbbf24;">
+        <p>Pásale este código a tu oponente:</p>
+        <h1 style="color: #fbbf24; letter-spacing: 5px;">{{ game.code }}</h1>
+    </div>
+    <button onclick="location.reload()" style="padding: 10px; cursor: pointer;">
+        🔄 Actualizar página para ver si se unió
+    </button>
+</div>
+{% endblock %}

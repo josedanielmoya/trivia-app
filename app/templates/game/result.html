@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="text-align: center; padding: 2rem;">
+    <h1 style="color: #10b981;">🏆 ¡Partida Terminada!</h1>
+    <p>Código de sala: {{ game.code }}</p>
+    <br>
+    {% if both_finished %}
+        <p style="color: #fbbf24;">Ambos jugadores han terminado de responder.</p>
+        <p>(El Rol 4 calculará quién ha ganado y mostrará los puntos aquí)</p>
+    {% else %}
+        <p>Has terminado tus preguntas. Esperando a que el otro jugador termine...</p>
+        <button onclick="location.reload()" style="margin-top: 10px; padding: 5px;">Actualizar estado</button>
+    {% endif %}
+    <br><br>
+    <a href="{{ url_for('index') }}" style="color: white; text-decoration: underline;">Volver al inicio</a>
+</div>
+{% endblock %}

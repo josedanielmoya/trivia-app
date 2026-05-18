@@ -9,7 +9,6 @@ login_manager.login_view = "auth.login"
 login_manager.login_message = "Please log in to continue."
 login_manager.login_message_category = "warning"
 
-
 def create_app(config_name="default"):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
@@ -34,20 +33,37 @@ def create_app(config_name="default"):
     # from app.admin.routes import admin_bp
     # app.register_blueprint(admin_bp, url_prefix="/admin")
 
-    # Temporary root route until Role 2 implements the lobby
     @app.route("/")
     @login_required
     def index():
         from flask import render_template_string
         return render_template_string("""
-            <!DOCTYPE html>
-            <html><head><title>TriviaApp</title></head>
-            <body style="background:#0f0a1e;color:#f1f5f9;font-family:sans-serif;text-align:center;padding:4rem">
+            {% extends "base.html" %}
+            {% block content %}
+            <div style="text-align:center; padding:2rem">
                 <h1 style="color:#fbbf24">🎮 TriviaApp</h1>
-                <p>Welcome, <strong>{{ current_user.username }}</strong>!</p>
-                <p style="color:#94a3b8;margin-top:1rem">Game lobby coming soon (Role 2).</p>
-                <a href="/auth/logout" style="color:#7c3aed">Log out</a>
-            </body></html>
+                <p>Bienvenido, <strong>{{ current_user.username }}</strong>!</p>
+                
+                <div style="max-width: 400px; margin: 2rem auto; padding: 2rem; background: #1e1e2f; border-radius: 8px;">
+                    <h3>Zona de Pruebas (Rol 2)</h3>
+                    
+                    <form action="{{ url_for('game.create') }}" method="POST" style="margin-bottom: 2rem; margin-top: 1rem;">
+                        <button type="submit" style="width: 100%; padding: 10px; background: #7c3aed; color: white; border: none; cursor: pointer;">
+                            ➕ Crear Nueva Sala
+                        </button>
+                    </form>
+                    
+                    <hr style="border-color: #333; margin-bottom: 2rem;">
+                    
+                    <form action="{{ url_for('game.join') }}" method="POST" style="display: flex; gap: 10px;">
+                        <input type="text" name="code" placeholder="Código (ej. A1B2C3)" required style="flex: 1; padding: 10px;">
+                        <button type="submit" style="padding: 10px; background: #10b981; color: white; border: none; cursor: pointer;">
+                            Unirse
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endblock %}
         """)
 
     # Error handlers
@@ -64,7 +80,6 @@ def create_app(config_name="default"):
         db.create_all()
 
     return app
-
 
 @login_manager.user_loader
 def load_user(user_id):
