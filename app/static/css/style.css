@@ -101,10 +101,79 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
     font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 3rem;
 }
 
+/* ===== LOBBY ===== */
+.lobby-container {
+    display: flex; flex-direction: column; align-items: center; gap: 2rem;
+    padding: 2rem; max-width: 600px; margin: 0 auto;
+}
+
+.lobby-title {
+    font-family: var(--font-arcade); font-size: 1.2rem; color: var(--yellow);
+    text-align: center; margin-bottom: 1rem;
+}
+
+.room-code-box {
+    background: var(--surface); border: 3px solid var(--yellow);
+    border-radius: var(--radius); padding: 2rem; text-align: center;
+    box-shadow: 0 0 20px rgba(251,191,36,0.3);
+}
+
+.room-label {
+    color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.room-code {
+    font-family: monospace; font-size: 2.5rem; color: var(--yellow);
+    font-weight: 700; letter-spacing: 0.2em; margin-bottom: 1rem;
+}
+
+.btn-copy { background: var(--yellow); color: var(--bg); margin-top: 0.5rem; }
+.btn-copy:hover { background: #fcd34d; }
+
+.game-info {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    width: 100%; background: var(--surface); padding: 1.5rem;
+    border: 1px solid var(--border); border-radius: var(--radius);
+}
+
+.info-item {
+    display: flex; flex-direction: column; gap: 0.3rem;
+}
+
+.info-label {
+    color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.info-value {
+    color: var(--text); font-weight: 700; font-size: 1.1rem;
+}
+
+.waiting-indicator {
+    text-align: center; padding: 2rem;
+}
+
+.waiting-text {
+    color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1rem;
+}
+
+.loading-spinner {
+    width: 60px; height: 60px; border: 4px solid var(--border);
+    border-top-color: var(--purple); border-radius: 50%;
+    animation: spin 1s linear infinite; margin: 0 auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 600px) {
     .navbar { padding: 0.75rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
     .navbar-brand { font-size: 0.65rem; }
     .auth-card { padding: 1.5rem; }
     .error-code { font-size: 3rem; }
+    .room-code { font-size: 1.8rem; }
+    .game-info { grid-template-columns: 1fr; }
 }
