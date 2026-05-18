@@ -27,8 +27,8 @@ def create_app(config_name="default"):
     app.register_blueprint(auth_bp, url_prefix="/auth")
 
     # Other blueprints — uncomment when each role adds their files
-    # from app.game.routes import game_bp
-    # app.register_blueprint(game_bp, url_prefix="/game")
+    from app.game.routes import game_bp
+    app.register_blueprint(game_bp, url_prefix="/game")
     # from app.stats.routes import stats_bp
     # app.register_blueprint(stats_bp, url_prefix="/stats")
     # from app.admin.routes import admin_bp

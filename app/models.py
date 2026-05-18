@@ -50,18 +50,12 @@ class Game(db.Model):
     guest_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     difficulty = db.Column(db.String(10), nullable=False, default="medium")  # easy/medium/hard
     num_questions = db.Column(db.Integer, nullable=False, default=10)
-    time_per_question = db.Column(db.Integer, nullable=False, default=30)    # seconds
-    category_id = db.Column(db.Integer, nullable=True)    # Open Trivia DB category ID (None = any)
-    category_name = db.Column(db.String(64), nullable=True)
-    status = db.Column(db.String(10), nullable=False, default="waiting")  # waiting/playing/done
+    time_per_q = db.Column(db.Integer, nullable=False, default=30)           # seconds
+    status = db.Column(db.String(10), nullable=False, default="waiting")     # waiting/playing/done
     winner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
-    host_score = db.Column(db.Integer, default=0)
-    guest_score = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    finished_at = db.Column(db.DateTime, nullable=True)
 
-    # Relationships
-    questions = db.relationship("Question", backref="game", lazy="dynamic", cascade="all, delete-orphan")
+    # Relaciones
     answers = db.relationship("Answer", backref="game", lazy="dynamic", cascade="all, delete-orphan")
     winner = db.relationship("User", foreign_keys=[winner_id])
 
@@ -71,51 +65,24 @@ class Game(db.Model):
     def both_finished(self):
         return self.status == "done"
 
-    def __repr__(self):
-        return f"<Game {self.code} [{self.status}]>"
-
-
-class Question(db.Model):
-    __tablename__ = "questions"
-
-    id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
-    order = db.Column(db.Integer, nullable=False)           # position in the game (0-based)
-    text = db.Column(db.Text, nullable=False)
-    category = db.Column(db.String(64), nullable=True)
-    difficulty = db.Column(db.String(10), nullable=True)
-    correct_answer = db.Column(db.String(256), nullable=False)
-    wrong_answers = db.Column(db.Text, nullable=False)      # JSON array stored as string
-
-    def get_all_answers_shuffled(self):
-        """Returns a shuffled list of all answer options (correct + wrong)."""
-        import json
-        import random
-        options = json.loads(self.wrong_answers) + [self.correct_answer]
-        random.shuffle(options)
-        return options
-
-    def __repr__(self):
-        return f"<Question {self.id} game={self.game_id} order={self.order}>"
-
-
 class Answer(db.Model):
     __tablename__ = "answers"
 
     id = db.Column(db.Integer, primary_key=True)
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
-    given_answer = db.Column(db.String(256), nullable=True)   # None if time ran out
+    
+    # Nuevos campos guardados directamente en la respuesta
+    question_text = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(64), nullable=True)
+    correct_answer = db.Column(db.String(256), nullable=False)
+    
+    given_answer = db.Column(db.String(256), nullable=True)   # None si el tiempo se agotó
     is_correct = db.Column(db.Boolean, nullable=False, default=False)
     time_taken = db.Column(db.Float, nullable=False, default=0.0)  # seconds
 
-    question = db.relationship("Question")
-
     def __repr__(self):
-        return f"<Answer user={self.user_id} q={self.question_id} correct={self.is_correct}>"
-
-
+        return f"<Answer user={self.user_id} correct={self.is_correct}>"
 class UserStats(db.Model):
     """Aggregated stats per user — updated at the end of each game."""
     __tablename__ = "user_stats"
