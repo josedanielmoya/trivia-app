@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Ranking – TriviaApp{% endblock %}
+{% block content %}
+<h1 class="page-title">🏆 Global Ranking</h1>
+<p class="page-subtitle">Top players of TriviaApp</p>
+
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Player</th>
+        <th>Wins</th>
+        <th>Games</th>
+        <th>Accuracy</th>
+        <th>Streak 🔥</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in all_stats %}
+      <tr>
+        <td>
+          {% if loop.index == 1 %}🥇
+          {% elif loop.index == 2 %}🥈
+          {% elif loop.index == 3 %}🥉
+          {% else %}<span style="color:var(--muted)">{{ loop.index }}</span>
+          {% endif %}
+        </td>
+        <td>
+          <strong>{{ s.user.username }}</strong>
+          {% if s.user.id == current_user.id %}
+            <span class="badge badge-yellow">You</span>
+          {% endif %}
+        </td>
+        <td style="color:var(--green);font-weight:700">{{ s.total_wins }}</td>
+        <td style="color:var(--muted)">{{ s.total_games }}</td>
+        <td>{{ s.accuracy() }}%</td>
+        <td>
+          {% if s.current_streak > 0 %}🔥 {{ s.current_streak }}
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" style="text-align:center;color:var(--muted)">
+          No finished games yet.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
