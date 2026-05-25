@@ -336,15 +336,60 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
     display: flex; justify-content: center; gap: 1rem;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
-    .play-header { flex-direction: column; }
-    .answers-grid { grid-template-columns: 1fr; }
-    .question-text { font-size: 1.1rem; }
-    .timer-display { font-size: 1.5rem; }
-    .results-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-    .vs-separator { margin: 1rem 0; }
-    .score-value { font-size: 2.5rem; }
+
+/* ===== HOME PAGE ===== */
+.home-container {
+    max-width: 1000px; margin: 0 auto; padding: 2rem 1rem;
+}
+
+.welcome-section {
+    text-align: center; margin-bottom: 3rem;
+}
+
+.welcome-title {
+    font-family: var(--font-arcade); font-size: 1.5rem; color: var(--yellow);
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    color: var(--text-muted); font-size: 1.1rem;
+}
+
+.actions-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+}
+
+.action-card {
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: var(--radius); padding: 2rem;
+    transition: all 0.18s;
+}
+
+.action-card:hover {
+    border-color: var(--purple);
+    box-shadow: 0 0 20px rgba(124,58,237,0.2);
+}
+
+.card-icon {
+    font-size: 3rem; text-align: center; margin-bottom: 1rem;
+}
+
+.card-title {
+    color: var(--text); font-size: 1.3rem; margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.card-description {
+    color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.action-card .form-group {
+    margin-bottom: 1rem;
+}
+
+.action-card select {
+    width: 100%;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -355,4 +400,13 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
     .error-code { font-size: 3rem; }
     .room-code { font-size: 1.8rem; }
     .game-info { grid-template-columns: 1fr; }
+    .play-header { flex-direction: column; }
+    .answers-grid { grid-template-columns: 1fr; }
+    .question-text { font-size: 1.1rem; }
+    .timer-display { font-size: 1.5rem; }
+    .results-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .vs-separator { margin: 1rem 0; }
+    .score-value { font-size: 2.5rem; }
+    .actions-grid { grid-template-columns: 1fr; }
+    .welcome-title { font-size: 1.2rem; }
 }

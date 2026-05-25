@@ -29,26 +29,16 @@ def create_app(config_name="default"):
     # Other blueprints — uncomment when each role adds their files
     from app.game.routes import game_bp
     app.register_blueprint(game_bp, url_prefix="/game")
-    # from app.stats.routes import stats_bp
-    # app.register_blueprint(stats_bp, url_prefix="/stats")
-    # from app.admin.routes import admin_bp
-    # app.register_blueprint(admin_bp, url_prefix="/admin")
+    from app.stats.routes import stats_bp
+    app.register_blueprint(stats_bp, url_prefix="/stats")
+    from app.admin.routes import admin_bp
+    app.register_blueprint(admin_bp, url_prefix="/admin")
 
-    # Temporary root route until Role 2 implements the lobby
+    # Root route
     @app.route("/")
     @login_required
     def index():
-        from flask import render_template_string
-        return render_template_string("""
-            <!DOCTYPE html>
-            <html><head><title>TriviaApp</title></head>
-            <body style="background:#0f0a1e;color:#f1f5f9;font-family:sans-serif;text-align:center;padding:4rem">
-                <h1 style="color:#fbbf24">🎮 TriviaApp</h1>
-                <p>Welcome, <strong>{{ current_user.username }}</strong>!</p>
-                <p style="color:#94a3b8;margin-top:1rem">Game lobby coming soon (Role 2).</p>
-                <a href="/auth/logout" style="color:#7c3aed">Log out</a>
-            </body></html>
-        """)
+        return render_template("index.html")
 
     # Error handlers
     @app.errorhandler(404)
