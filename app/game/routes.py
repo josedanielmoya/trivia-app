@@ -7,6 +7,53 @@ from app.game.trivia_api import TriviaAPI
 
 game_bp = Blueprint("game", __name__)
 
+def update_stats_after_game(game):
+    """
+    Calculates the winner and updates UserStats for both players
+    at the end of a finished game.
+    Called once when both players have answered all questions.
+    """
+    from app.models import UserStats
+
+    def get_or_create_stats(user_id):
+        s = UserStats.query.filter_by(user_id=user_id).first()
+        if not s:
+            s = UserStats(user_id=user_id)
+            db.session.add(s)
+        return s
+
+    host_answers = Answer.query.filter_by(game_id=game.id, user_id=game.host_id).all()
+    guest_answers = Answer.query.filter_by(game_id=game.id, user_id=game.guest_id).all()
+
+    host_score = sum(1 for a in host_answers if a.is_correct)
+    guest_score = sum(1 for a in guest_answers if a.is_correct)
+
+    # Determine winner (winner_id stays None on a draw)
+    if host_score > guest_score:
+        game.winner_id = game.host_id
+    elif guest_score > host_score:
+        game.winner_id = game.guest_id
+
+    game.status = "done"
+
+    # Update stats for both players
+    for user_id, answers, won in [
+        (game.host_id, host_answers, game.winner_id == game.host_id),
+        (game.guest_id, guest_answers, game.winner_id == game.guest_id),
+    ]:
+        s = get_or_create_stats(user_id)
+        s.total_games += 1
+        s.total_correct += sum(1 for a in answers if a.is_correct)
+        s.total_questions += len(answers)
+        if won:
+            s.total_wins += 1
+            s.current_streak += 1
+            s.max_streak = max(s.max_streak, s.current_streak)
+        else:
+            s.current_streak = 0  # Reset streak on loss or draw
+
+    db.session.commit()
+
 def generate_room_code():
     """Generates a random 6-character uppercase alphanumeric code."""
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -144,18 +191,30 @@ def submit_answer(code):
 @game_bp.route("/result/<code>")
 @login_required
 def result(code):
-    """Step 5: Show game results."""
+    """
+    Step 5: Show final results.
+    Triggers winner calculation and stats update the first time both players finish.
+    """
     game = Game.query.filter_by(code=code).first_or_404()
-    
-    # Check if both players have finished answering
+
     host_answers = Answer.query.filter_by(game_id=game.id, user_id=game.host_id).count()
-    guest_answers = Answer.query.filter_by(game_id=game.id, user_id=game.guest_id).count() if game.guest_id else 0
-    
-    both_finished = (host_answers == game.num_questions) and (guest_answers == game.num_questions)
-    
+    guest_answers = (
+        Answer.query.filter_by(game_id=game.id, user_id=game.guest_id).count()
+        if game.guest_id else 0
+    )
+
+    both_finished = (host_answers >= game.num_questions and guest_answers >= game.num_questions)
+
+    # Only update stats once, when the game transitions to "done"
     if both_finished and game.status != "done":
-        game.status = "done"
-        db.session.commit()
-        # Note: Role 4 will calculate the winner and update UserStats here later
-        
-    return render_template("game/result.html", game=game, both_finished=both_finished)
+        update_stats_after_game(game)
+
+    host_score = Answer.query.filter_by(
+        game_id=game.id, user_id=game.host_id, is_correct=True).count()
+    guest_score = Answer.query.filter_by(
+        game_id=game.id, user_id=game.guest_id, is_correct=True).count() if game.guest_id else 0
+
+    return render_template("game/result.html", game=game,
+                           both_finished=both_finished,
+                           host_score=host_score,
+                           guest_score=guest_score)
