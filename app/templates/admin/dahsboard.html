@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – TriviaApp{% endblock %}
+{% block content %}
+<h1 class="page-title">⚙️ Admin Dashboard</h1>
+
+<!-- Summary counters -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+  <div style="background:var(--surface);border:1px solid var(--border);
+              border-radius:var(--radius);padding:1.2rem;text-align:center">
+    <div style="font-family:var(--font-head);font-size:2rem;color:var(--cyan)">{{ users|length }}</div>
+    <div style="color:var(--muted);font-size:0.8rem">Total Users</div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);
+              border-radius:var(--radius);padding:1.2rem;text-align:center">
+    <div style="font-family:var(--font-head);font-size:2rem;color:var(--yellow)">{{ games|length }}</div>
+    <div style="color:var(--muted);font-size:0.8rem">Recent Games</div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);
+              border-radius:var(--radius);padding:1.2rem;text-align:center">
+    <div style="font-family:var(--font-head);font-size:2rem;color:var(--green)">{{ total_answers }}</div>
+    <div style="color:var(--muted);font-size:0.8rem">Total Answers</div>
+  </div>
+</div>
+
+<!-- Users table (CRUD: Read + Update admin role + Delete) -->
+<div class="card">
+  <div class="card-title">Users</div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th><th>Username</th><th>Email</th>
+        <th>Role</th><th>Joined</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td style="color:var(--muted)">{{ user.id }}</td>
+        <td>
+          <strong>{{ user.username }}</strong>
+          {% if user.id == current_user.id %}
+            <span class="badge badge-yellow">You</span>
+          {% endif %}
+        </td>
+        <td style="color:var(--muted)">{{ user.email }}</td>
+        <td>
+          <!-- Toggle admin role (CRUD - Update) -->
+          <form method="POST"
+                action="{{ url_for('admin.toggle_admin', user_id=user.id) }}"
+                style="display:inline">
+            <button type="submit" class="btn-outline btn"
+                    style="font-size:0.75rem;padding:0.3rem 0.7rem">
+              {% if user.is_admin %}✅ Admin{% else %}⬜ User{% endif %}
+            </button>
+          </form>
+        </td>
+        <td style="color:var(--muted);font-size:0.82rem">
+          {{ user.created_at.strftime('%Y-%m-%d') }}
+        </td>
+        <td>
+          <!-- Delete user (CRUD - Delete) -->
+          {% if user.id != current_user.id %}
+          <form method="POST"
+                action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                onsubmit="return confirm('Delete user {{ user.username }}?')">
+            <button type="submit" class="btn-danger btn"
+                    style="font-size:0.75rem;padding:0.3rem 0.7rem">Delete</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Games table (CRUD: Read + Delete) -->
+<div class="card">
+  <div class="card-title">Recent Games</div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Code</th><th>Host</th><th>Guest</th>
+        <th>Status</th><th>Winner</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for game in games %}
+      <tr>
+        <td style="font-family:monospace;color:var(--yellow)">{{ game.code }}</td>
+        <td>{{ game.host.username }}</td>
+        <td>{{ game.guest.username if game.guest else '—' }}</td>
+        <td>
+          {% if game.status == 'done' %}
+            <span class="badge badge-green">Done</span>
+          {% elif game.status == 'playing' %}
+            <span class="badge badge-cyan">Playing</span>
+          {% else %}
+            <span class="badge badge-yellow">Waiting</span>
+          {% endif %}
+        </td>
+        <td>{{ game.winner.username if game.winner else '—' }}</td>
+        <td>
+          <!-- Delete game (CRUD - Delete) -->
+          <form method="POST"
+                action="{{ url_for('admin.delete_game', game_id=game.id) }}"
+                onsubmit="return confirm('Delete game {{ game.code }}?')">
+            <button type="submit" class="btn-danger btn"
+                    style="font-size:0.75rem;padding:0.3rem 0.7rem">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
