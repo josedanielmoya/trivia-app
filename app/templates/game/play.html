@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Playing - TriviaApp{% endblock %}
+
+{% block content %}
+<div class="play-container">
+    <div class="play-header">
+        <div class="question-counter">
+            <span class="counter-label">Question</span>
+            <span class="counter-value">{{ q_num }}/{{ game.num_questions }}</span>
+        </div>
+        <div class="timer-box">
+            <span class="timer-label">Time</span>
+            <span id="timer-display" class="timer-display" data-seconds="{{ game.time_per_q }}">
+                {{ game.time_per_q }}
+            </span>
+        </div>
+    </div>
+
+    <div class="question-box">
+        <p class="question-category">{{ question.category }}</p>
+        <h2 class="question-text">{{ question.question }}</h2>
+    </div>
+
+    <form id="answer-form" action="{{ url_for('game.submit_answer', code=game.code) }}" method="POST">
+        <div class="answers-grid">
+            {% for answer in question.all_answers %}
+            <label class="answer-option">
+                <input type="radio" name="answer" value="{{ answer }}" required>
+                <span class="answer-text">{{ answer }}</span>
+            </label>
+            {% endfor %}
+        </div>
+
+        <input type="hidden" id="time-taken-input" name="time_taken" value="0">
+
+        <button type="button" class="btn btn-primary btn-full" onclick="submitAnswer()">
+            Submit Answer
+        </button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+{% endblock %}

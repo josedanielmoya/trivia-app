@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Results - TriviaApp{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <h1 class="result-title">GAME OVER</h1>
+
+    {% if both_finished %}
+    <div class="results-grid">
+        {% set host_answers = game.answers.filter_by(user_id=game.host_id).all() %}
+        {% set guest_answers = game.answers.filter_by(user_id=game.guest_id).all() if game.guest_id else [] %}
+
+        {% set host_correct = host_answers|selectattr('is_correct', 'equalto', True)|list|length %}
+        {% set guest_correct = guest_answers|selectattr('is_correct', 'equalto', True)|list|length %}
+
+        <div class="player-result">
+            <h2 class="player-name">{{ game.host.username }}</h2>
+            <p class="player-role">(Host)</p>
+            <div class="score-display">
+                <span class="score-value">{{ host_correct }}</span>
+                <span class="score-label">/ {{ game.num_questions }}</span>
+            </div>
+            <p class="accuracy">{{ (host_correct / game.num_questions * 100)|round(1) }}% Accuracy</p>
+        </div>
+
+        <div class="vs-separator">VS</div>
+
+        <div class="player-result">
+            {% if game.guest %}
+            <h2 class="player-name">{{ game.guest.username }}</h2>
+            <p class="player-role">(Guest)</p>
+            <div class="score-display">
+                <span class="score-value">{{ guest_correct }}</span>
+                <span class="score-label">/ {{ game.num_questions }}</span>
+            </div>
+            <p class="accuracy">{{ (guest_correct / game.num_questions * 100)|round(1) }}% Accuracy</p>
+            {% else %}
+            <h2 class="player-name">No Opponent</h2>
+            <p class="player-role">(Game Incomplete)</p>
+            <div class="score-display">
+                <span class="score-value">0</span>
+                <span class="score-label">/ {{ game.num_questions }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if game.guest %}
+    <div class="winner-box">
+        {% if host_correct > guest_correct %}
+        <p class="winner-text">🏆 {{ game.host.username }} wins!</p>
+        {% elif guest_correct > host_correct %}
+        <p class="winner-text">🏆 {{ game.guest.username }} wins!</p>
+        {% else %}
+        <p class="winner-text">🤝 It's a tie!</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="incomplete-warning">
+        <p class="warning-icon">⏳</p>
+        <p class="warning-text">Waiting for opponent to finish...</p>
+    </div>
+    {% endif %}
+
+    <div class="result-actions">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">← Back to Home</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Home - TriviaApp{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <div class="welcome-section">
+        <h1 class="welcome-title">Welcome, {{ current_user.username }}!</h1>
+        <p class="welcome-subtitle">Ready to test your trivia knowledge?</p>
+    </div>
+
+    <div class="actions-grid">
+        <!-- Create Room -->
+        <div class="action-card">
+            <div class="card-icon">🎮</div>
+            <h2 class="card-title">Create Room</h2>
+            <p class="card-description">Start a new game and invite a friend</p>
+            <form method="POST" action="{{ url_for('game.create') }}">
+                <div class="form-group">
+                    <label for="difficulty">Difficulty</label>
+                    <select name="difficulty" id="difficulty" class="form-input">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="num_questions">Number of Questions</label>
+                    <select name="num_questions" id="num_questions" class="form-input">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="time_per_q">Time per Question (seconds)</label>
+                    <select name="time_per_q" id="time_per_q" class="form-input">
+                        <option value="15">15s</option>
+                        <option value="20">20s</option>
+                        <option value="30" selected>30s</option>
+                        <option value="45">45s</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Create Room</button>
+            </form>
+        </div>
+
+        <!-- Join Room -->
+        <div class="action-card">
+            <div class="card-icon">🚪</div>
+            <h2 class="card-title">Join Room</h2>
+            <p class="card-description">Enter a room code to play with a friend</p>
+            <form method="POST" action="{{ url_for('game.join') }}">
+                <div class="form-group">
+                    <label for="code">Room Code</label>
+                    <input
+                        type="text"
+                        id="code"
+                        name="code"
+                        class="form-input"
+                        placeholder="e.g., ABC123"
+                        maxlength="6"
+                        pattern="[A-Z0-9]{6}"
+                        required
+                    >
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Join Room</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

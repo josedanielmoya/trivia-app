@@ -14,11 +14,10 @@
         <div class="navbar-links">
             {% if current_user.is_authenticated %}
                 <span class="nav-user">👤 {{ current_user.username }}</span>
-                {# Uncomment when other roles are ready: #}
-                {# <a href="{{ url_for('stats.ranking') }}">🏆 Ranking</a> #}
-                {# <a href="{{ url_for('stats.profile') }}">📊 Profile</a> #}
+                <a href="{{ url_for('stats.ranking') }}">🏆 Ranking</a>
+                <a href="{{ url_for('stats.profile') }}">📊 Profile</a>
                 {% if current_user.is_admin %}
-                    {# <a href="{{ url_for('admin.dashboard') }}">⚙️ Admin</a> #}
+                    <a href="{{ url_for('admin.dashboard') }}">⚙️ Admin</a>
                 {% endif %}
                 <a href="{{ url_for('auth.logout') }}" class="btn btn-outline">Log Out</a>
             {% else %}
