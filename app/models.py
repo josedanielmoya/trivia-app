@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
 
 db = SQLAlchemy()
 
@@ -19,14 +21,14 @@ class User(UserMixin, db.Model):
     # Relationships
     hosted_games = db.relationship("Game", foreign_keys="Game.host_id", backref="host", lazy="dynamic")
     guest_games = db.relationship("Game", foreign_keys="Game.guest_id", backref="guest", lazy="dynamic")
-    answers = db.relationship("Answer", backref="user", lazy="dynamic")
-    stats = db.relationship("UserStats", backref="user", uselist=False)
+    answers = db.relationship("Answer", backref="user", lazy="dynamic", cascade="all, delete-orphan")
+    stats = db.relationship("UserStats", backref="user", uselist=False, cascade="all, delete-orphan")
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return bcrypt.check_password_hash(self.password_hash, password)
 
     def get_total_games(self):
         return self.hosted_games.count() + self.guest_games.count()
@@ -65,12 +67,31 @@ class Game(db.Model):
     def both_finished(self):
         return self.status == "done"
 
+
+class Round(db.Model):
+    """One player's session within a game — groups their answers together."""
+    __tablename__ = "rounds"
+
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    started_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    finished = db.Column(db.Boolean, default=False)
+
+    # Relationships
+    answers = db.relationship("Answer", backref="round", lazy="dynamic", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<Round game={self.game_id} user={self.user_id} finished={self.finished}>"
+
+
 class Answer(db.Model):
     __tablename__ = "answers"
 
     id = db.Column(db.Integer, primary_key=True)
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    round_id = db.Column(db.Integer, db.ForeignKey("rounds.id"), nullable=True)
     
     # Nuevos campos guardados directamente en la respuesta
     question_text = db.Column(db.Text, nullable=False)
@@ -83,6 +104,8 @@ class Answer(db.Model):
 
     def __repr__(self):
         return f"<Answer user={self.user_id} correct={self.is_correct}>"
+
+
 class UserStats(db.Model):
     """Aggregated stats per user — updated at the end of each game."""
     __tablename__ = "user_stats"

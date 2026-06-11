@@ -34,7 +34,9 @@ def dashboard():
 @admin_required
 def delete_user(user_id):
     """Deletes a user and all their associated data (CRUD - Delete)."""
-    user = User.query.get_or_404(user_id)
+    user = db.session.get(User, user_id)
+    if user is None:
+        abort(404)
     if user.id == current_user.id:
         flash("You cannot delete your own account.", "warning")
         return redirect(url_for("admin.dashboard"))
@@ -48,7 +50,9 @@ def delete_user(user_id):
 @admin_required
 def toggle_admin(user_id):
     """Promotes or demotes a user to/from admin (CRUD - Update)."""
-    user = User.query.get_or_404(user_id)
+    user = db.session.get(User, user_id)
+    if user is None:
+        abort(404)
     if user.id == current_user.id:
         flash("You cannot change your own admin status.", "warning")
         return redirect(url_for("admin.dashboard"))
@@ -63,7 +67,9 @@ def toggle_admin(user_id):
 @admin_required
 def delete_game(game_id):
     """Deletes a game and all its answers (CRUD - Delete)."""
-    game = Game.query.get_or_404(game_id)
+    game = db.session.get(Game, game_id)
+    if game is None:
+        abort(404)
     db.session.delete(game)
     db.session.commit()
     flash(f"Game '{game.code}' deleted.", "success")

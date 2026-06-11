@@ -1,13 +1,16 @@
 import os
 from flask import Flask, redirect, url_for, render_template, render_template_string
 from flask_login import LoginManager, login_required, current_user
-from app.models import db, User
+from flask_wtf.csrf import CSRFProtect
+from app.models import db, User, bcrypt
 from config import config
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 login_manager.login_message = "Please log in to continue."
 login_manager.login_message_category = "warning"
+
+csrf = CSRFProtect()
 
 
 def create_app(config_name="default"):
@@ -21,6 +24,8 @@ def create_app(config_name="default"):
     # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)
+    bcrypt.init_app(app)
 
     # Register blueprints
     from app.auth.routes import auth_bp
@@ -58,4 +63,4 @@ def create_app(config_name="default"):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))

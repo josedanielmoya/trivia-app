@@ -67,7 +67,7 @@ trivia_app/
 | Authentication | Flask-Login |
 | Form validation | Flask-WTF + WTForms |
 | Database ORM | SQLAlchemy + SQLite |
-| Password hashing | Werkzeug |
+| Password hashing | Flask-Bcrypt (bcrypt) |
 | Charts | matplotlib (Role 4) |
 | Trivia API | Open Trivia DB (Role 2) |
 

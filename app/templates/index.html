@@ -16,6 +16,7 @@
             <h2 class="card-title">Create Room</h2>
             <p class="card-description">Start a new game and invite a friend</p>
             <form method="POST" action="{{ url_for('game.create') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label for="difficulty">Difficulty</label>
                     <select name="difficulty" id="difficulty" class="form-input">
@@ -52,6 +53,7 @@
             <h2 class="card-title">Join Room</h2>
             <p class="card-description">Enter a room code to play with a friend</p>
             <form method="POST" action="{{ url_for('game.join') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label for="code">Room Code</label>
                     <input
