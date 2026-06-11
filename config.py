@@ -10,7 +10,7 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
     # Use relative path to avoid issues with special characters in absolute path
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", "sqlite:///instance/trivia.db"
+        "DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'trivia.db')}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = True
@@ -21,8 +21,8 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    # Use in-memory database for development to avoid file permission issues
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    # Use file-based SQLite so data persists between requests
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'trivia.db')}"
 
 
 class ProductionConfig(Config):
