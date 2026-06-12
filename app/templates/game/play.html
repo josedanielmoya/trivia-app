@@ -23,6 +23,7 @@
     </div>
 
     <form id="answer-form" action="{{ url_for('game.submit_answer', code=game.code) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="answers-grid">
             {% for answer in question.all_answers %}
             <label class="answer-option">
