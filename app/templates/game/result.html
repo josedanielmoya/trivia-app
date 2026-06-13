@@ -1,77 +1,42 @@
 {% extends "base.html" %}
 
-{% block title %}Results - TriviaApp{% endblock %}
+{% block title %}Game Results - TriviaApp{% endblock %}
 
 {% block content %}
-<div class="result-container">
-    <h1 class="result-title">GAME OVER</h1>
-
-    {% if both_finished %}
-    <div class="results-grid">
-        {% set host_answers = game.answers.filter_by(user_id=game.host_id).all() %}
-        {% set guest_answers = game.answers.filter_by(user_id=game.guest_id).all() if game.guest_id else [] %}
-
-        {% set host_correct = host_answers|selectattr('is_correct', 'equalto', True)|list|length %}
-        {% set guest_correct = guest_answers|selectattr('is_correct', 'equalto', True)|list|length %}
-
-        <div class="player-result">
-            <h2 class="player-name">{{ game.host.username }}</h2>
-            <p class="player-role">(Host)</p>
-            <div class="score-display">
-                <span class="score-value">{{ host_correct }}</span>
-                <span class="score-label">/ {{ game.num_questions }}</span>
-            </div>
-            <p class="accuracy">{{ (host_correct / game.num_questions * 100)|round(1) }}% Accuracy</p>
+<div style="text-align: center; padding: 2rem;">
+    <h1 style="color: #10b981;">🏆 Game Over!</h1>
+    <p>Room Code: {{ game.code }}</p>
+    <br>
+    
+    {% if all_finished %}
+        <p style="color: #fbbf24; margin-bottom: 2rem;">All players have finished!</p>
+        
+        <div style="max-width: 400px; margin: 0 auto; text-align: left; background: #1e1e2f; padding: 1.5rem; border-radius: 8px; border: 1px solid #333;">
+            <h3 style="margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; text-align: center;">Leaderboard</h3>
+            <ul style="list-style-type: none; padding: 0;">
+            {% for ps in player_scores %}
+                <li style="font-size: 1.2rem; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #2a2a40; border-radius: 5px;">
+                    <span>
+                        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}🎮{% endif %}
+                        <strong>{{ ps.username }}</strong> 
+                        {% if ps.is_host %}<span style="font-size: 0.8rem; color: #fbbf24;">(Host)</span>{% endif %}
+                    </span>
+                    <strong style="color: #10b981; font-size: 1.4rem;">{{ ps.score }}</strong>
+                </li>
+            {% endfor %}
+            </ul>
         </div>
-
-        <div class="vs-separator">VS</div>
-
-        <div class="player-result">
-            {% if game.guest %}
-            <h2 class="player-name">{{ game.guest.username }}</h2>
-            <p class="player-role">(Guest)</p>
-            <div class="score-display">
-                <span class="score-value">{{ guest_correct }}</span>
-                <span class="score-label">/ {{ game.num_questions }}</span>
-            </div>
-            <p class="accuracy">{{ (guest_correct / game.num_questions * 100)|round(1) }}% Accuracy</p>
-            {% else %}
-            <h2 class="player-name">No Opponent</h2>
-            <p class="player-role">(Game Incomplete)</p>
-            <div class="score-display">
-                <span class="score-value">0</span>
-                <span class="score-label">/ {{ game.num_questions }}</span>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    {% if game.guest %}
-    <div class="winner-box">
-        {% if host_correct > guest_correct %}
-        <p class="winner-text">🏆 {{ game.host.username }} wins!</p>
-        {% elif guest_correct > host_correct %}
-        <p class="winner-text">🏆 {{ game.guest.username }} wins!</p>
-        {% else %}
-        <p class="winner-text">🤝 It's a tie!</p>
-        {% endif %}
-    </div>
-    {% endif %}
-
     {% else %}
-    <div class="incomplete-warning">
-        <p class="warning-icon">⏳</p>
-        <p class="warning-text">Waiting for opponent to finish...</p>
-    </div>
+        <p>You have finished your questions!</p>
+        <p style="color: #94a3b8; margin-top: 1rem;">Waiting for other players to finish...</p>
     {% endif %}
-
-    <div class="result-actions">
-        <a href="{{ url_for('index') }}" class="btn btn-primary">← Back to Home</a>
-    </div>
+    
+    <br><br>
+    <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top: 1rem;">Back to Home</a>
 </div>
-{% if not both_finished %}
+
+{% if not all_finished %}
     <script>
-        // Check for updates every 3 seconds
         setTimeout(function() {
             window.location.reload();
         }, 3000);

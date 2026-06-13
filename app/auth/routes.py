@@ -1,3 +1,5 @@
+import random
+import string
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models import db, User, UserStats
@@ -47,3 +49,37 @@ def logout():
     logout_user()
     flash("You have been logged out.", "info")
     return redirect(url_for("auth.login"))
+
+@auth_bp.route("/guest", methods=["POST"])
+def guest_login():
+    """Generates a random guest account and logs them in automatically."""
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
+        
+    # Generate random guest credentials
+    random_suffix = ''.join(random.choices(string.digits, k=4))
+    username = f"Guest_{random_suffix}"
+    email = f"guest_{random_suffix}@trivia.local"
+    password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    
+    # Ensure username is unique just in case
+    while User.query.filter_by(username=username).first():
+        random_suffix = ''.join(random.choices(string.digits, k=4))
+        username = f"Guest_{random_suffix}"
+        email = f"guest_{random_suffix}@trivia.local"
+        
+    # Create and save the guest user
+    user = User(username=username, email=email)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.flush()
+    
+    # Create empty stats record
+    stats = UserStats(user_id=user.id)
+    db.session.add(stats)
+    db.session.commit()
+    
+    # Log them in automatically
+    login_user(user)
+    flash(f"Playing as {username}. Have fun!", "success")
+    return redirect(url_for("index"))

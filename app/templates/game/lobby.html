@@ -7,28 +7,33 @@
     <h2>⏳ Lobby: {{ game.code }}</h2>
     
     <div style="margin: 2rem; padding: 1rem; border: 2px dashed #fbbf24;">
-        <p>Share this code with your opponent:</p>
+        <p>Share this code with your opponents:</p>
         <h1 style="color: #fbbf24; letter-spacing: 5px;">{{ game.code }}</h1>
     </div>
 
-    {% if guest_name %}
-        <p style="color: #10b981; font-size: 1.2rem;">
-            Player <strong>{{ guest_name }}</strong> has joined the room!
-        </p>
-        
-        {% if current_user.id == game.host_id %}
-            <form action="{{ url_for('game.start_game', code=game.code) }}" method="POST" style="margin-top: 2rem;">
+    <h3>Players Joined ({{ players|length }}/{{ game.max_players }}):</h3>
+    <ul style="list-style-type: none; padding: 0; font-size: 1.2rem; color: #10b981; margin-bottom: 2rem;">
+        {% for player in players %}
+            <li style="margin: 5px 0;">
+                👤 {{ player.username }} 
+                {% if player.id == game.host_id %}<span style="color: #fbbf24;">(Host)</span>{% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    
+    {% if current_user.id == game.host_id %}
+        {% if players|length >= 2 %}
+            <form action="{{ url_for('game.start_game', code=game.code) }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" style="padding: 15px 30px; background: #7c3aed; color: white; border: none; font-size: 1.2rem; cursor: pointer; border-radius: 8px;">
                     ▶️ Start Game
                 </button>
             </form>
         {% else %}
-            <p style="margin-top: 2rem;">Waiting for the Host to start the game...</p>
+            <p>Waiting for at least 1 opponent to join...</p>
         {% endif %}
-
     {% else %}
-        <p>Waiting for an opponent to join...</p>
+        <p>Waiting for the Host to start the game...</p>
     {% endif %}
 
 </div>
