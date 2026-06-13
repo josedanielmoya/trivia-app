@@ -54,6 +54,7 @@ class Game(db.Model):
     num_questions = db.Column(db.Integer, nullable=False, default=10)
     time_per_q = db.Column(db.Integer, nullable=False, default=30)           # seconds
     status = db.Column(db.String(10), nullable=False, default="waiting")     # waiting/playing/done
+    questions_json = db.Column(db.Text, nullable=True)
     winner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 

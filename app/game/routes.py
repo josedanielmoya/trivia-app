@@ -71,13 +71,17 @@ def create():
     while Game.query.filter_by(code=code).first():
         code = generate_room_code()
 
+    import json
+    questions = TriviaAPI.fetch_questions(amount=num_questions, difficulty=difficulty)
+
     new_game = Game(
         code=code,
         host_id=current_user.id,
         difficulty=difficulty,
-        num_questions=num_questions,
+        num_questions=len(questions),
         time_per_q=time_per_q,
-        status="waiting"
+        status="waiting",
+        questions_json=json.dumps(questions)
     )
     db.session.add(new_game)
     db.session.commit()
@@ -127,29 +131,18 @@ def lobby(code):
 @game_bp.route("/play/<code>")
 @login_required
 def play(code):
-    """Step 3 & 4: Fetch questions and show the current one."""
     game = Game.query.filter_by(code=code).first_or_404()
     
-    # Security check: only host and guest can play
     if current_user.id not in [game.host_id, game.guest_id]:
         flash("You are not part of this game.", "danger")
         return redirect(url_for("index"))
 
-    session_key = f"game_{code}_questions"
+    import json
+    questions = json.loads(game.questions_json) if game.questions_json else []
     
-    # Fetch questions from API if not in session yet
-    if session_key not in session:
-        questions = TriviaAPI.fetch_questions(amount=game.num_questions, difficulty=game.difficulty)
-        session[session_key] = questions
-        session.modified = True
-
-    questions = session.get(session_key, [])
-    
-    # Calculate which question the user is currently on
     answers_given = Answer.query.filter_by(game_id=game.id, user_id=current_user.id).count()
     
     if answers_given >= len(questions):
-        # User finished all questions
         return redirect(url_for("game.result", code=code))
 
     current_question = questions[answers_given]
@@ -159,10 +152,11 @@ def play(code):
 @game_bp.route("/answer/<code>", methods=["POST"])
 @login_required
 def submit_answer(code):
-    """Step 4: Receive answer and save to DB."""
     game = Game.query.filter_by(code=code).first_or_404()
-    session_key = f"game_{code}_questions"
-    questions = session.get(session_key, [])
+    
+    # LEEMOS LAS PREGUNTAS DE LA BASE DE DATOS
+    import json
+    questions = json.loads(game.questions_json) if game.questions_json else []
     
     answers_given = Answer.query.filter_by(game_id=game.id, user_id=current_user.id).count()
     
