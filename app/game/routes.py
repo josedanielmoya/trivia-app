@@ -92,7 +92,7 @@ def create():
 @game_bp.route("/join", methods=["POST"])
 @login_required
 def join():
-    """Step 2: Player B joins using the code."""
+    """Step 2: Player B joins the lobby."""
     code = request.form.get("code", "").upper().strip()
     game = Game.query.filter_by(code=code).first()
 
@@ -101,20 +101,23 @@ def join():
         return redirect(url_for("index"))
     
     if game.host_id == current_user.id:
-        # Host is just entering their own lobby
         return redirect(url_for("game.lobby", code=code))
 
-    if game.status != "waiting" or game.is_full():
-        flash("Room is full or game has already started.", "warning")
+    if game.status != "waiting":
+        flash("Game has already started or finished.", "warning")
         return redirect(url_for("index"))
 
-    # Add guest and start game
-    game.guest_id = current_user.id
-    game.status = "playing"
-    db.session.commit()
+    if game.is_full() and game.guest_id != current_user.id:
+        flash("Room is full.", "warning")
+        return redirect(url_for("index"))
+
+    if not game.is_full():
+        game.guest_id = current_user.id
+        db.session.commit()
     
-    flash("Successfully joined the game!", "success")
-    return redirect(url_for("game.play", code=code))
+    flash("Successfully joined the lobby!", "success")
+    return redirect(url_for("game.lobby", code=code))
+
 
 @game_bp.route("/lobby/<code>")
 @login_required
@@ -122,11 +125,32 @@ def lobby(code):
     """Waiting area before the game starts."""
     game = Game.query.filter_by(code=code).first_or_404()
     
-    # If guest has joined, redirect both to play area
-    if game.is_full():
+    # If the host has started the game, redirect everyone to play area
+    if game.status == "playing":
         return redirect(url_for("game.play", code=code))
         
-    return render_template("game/lobby.html", game=game)
+    # Get the guest's username if someone joined
+    guest_name = None
+    if game.guest_id:
+        from app.models import User
+        guest = db.session.get(User, game.guest_id)
+        if guest:
+            guest_name = guest.username
+
+    return render_template("game/lobby.html", game=game, guest_name=guest_name)
+
+
+@game_bp.route("/start/<code>", methods=["POST"])
+@login_required
+def start_game(code):
+    """Step 2.5: Host manually starts the game."""
+    game = Game.query.filter_by(code=code).first_or_404()
+    
+    if current_user.id == game.host_id and game.is_full():
+        game.status = "playing"
+        db.session.commit()
+        
+    return redirect(url_for("game.play", code=code))
 
 @game_bp.route("/play/<code>")
 @login_required

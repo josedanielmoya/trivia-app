@@ -69,4 +69,12 @@
         <a href="{{ url_for('index') }}" class="btn btn-primary">← Back to Home</a>
     </div>
 </div>
+{% if not both_finished %}
+    <script>
+        // Check for updates every 3 seconds
+        setTimeout(function() {
+            window.location.reload();
+        }, 3000);
+    </script>
+{% endif %}
 {% endblock %}
