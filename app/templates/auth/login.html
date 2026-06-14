@@ -23,6 +23,14 @@
             {{ form.submit(class="btn btn-primary btn-full") }}
         </form>
         <p class="auth-link">No account? <a href="{{ url_for('auth.register') }}">Sign up here</a></p>
+        
+        <hr style="border: 0; border-top: 1px solid #333; margin: 1.5rem 0;">
+        <form action="{{ url_for('auth.guest_login') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline btn-full" style="border-color: #10b981; color: #10b981;">
+                🕵️ Play as Guest
+            </button>
+        </form>
     </div>
 </div>
 {% endblock %}

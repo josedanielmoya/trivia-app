@@ -1,54 +1,46 @@
 {% extends "base.html" %}
 
-{% block title %}Lobby - TriviaApp{% endblock %}
+{% block title %}Game Lobby - TriviaApp{% endblock %}
 
 {% block content %}
-<div class="lobby-container">
-    <h1 class="lobby-title">ROOM WAITING</h1>
-
-    <div class="room-code-box">
-        <p class="room-label">Your Room Code</p>
-        <p class="room-code">{{ game.code }}</p>
-        <button class="btn btn-copy" onclick="copyToClipboard('{{ game.code }}')">📋 Copy Code</button>
+<div style="text-align: center; padding: 2rem;">
+    <h2>⏳ Lobby: {{ game.code }}</h2>
+    
+    <div style="margin: 2rem; padding: 1rem; border: 2px dashed #fbbf24;">
+        <p>Share this code with your opponents:</p>
+        <h1 style="color: #fbbf24; letter-spacing: 5px;">{{ game.code }}</h1>
     </div>
 
-    <div class="game-info">
-        <div class="info-item">
-            <span class="info-label">Host:</span>
-            <span class="info-value">{{ game.host.username }}</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Difficulty:</span>
-            <span class="info-value">{{ game.difficulty.upper() }}</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Questions:</span>
-            <span class="info-value">{{ game.num_questions }}</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Time per Q:</span>
-            <span class="info-value">{{ game.time_per_q }}s</span>
-        </div>
-    </div>
+    <h3>Players Joined ({{ players|length }}/{{ game.max_players }}):</h3>
+    <ul style="list-style-type: none; padding: 0; font-size: 1.2rem; color: #10b981; margin-bottom: 2rem;">
+        {% for player in players %}
+            <li style="margin: 5px 0;">
+                👤 {{ player.username }} 
+                {% if player.id == game.host_id %}<span style="color: #fbbf24;">(Host)</span>{% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    
+    {% if current_user.id == game.host_id %}
+        {% if players|length >= 2 %}
+            <form action="{{ url_for('game.start_game', code=game.code) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" style="padding: 15px 30px; background: #7c3aed; color: white; border: none; font-size: 1.2rem; cursor: pointer; border-radius: 8px;">
+                    ▶️ Start Game
+                </button>
+            </form>
+        {% else %}
+            <p>Waiting for at least 1 opponent to join...</p>
+        {% endif %}
+    {% else %}
+        <p>Waiting for the Host to start the game...</p>
+    {% endif %}
 
-    <div class="waiting-indicator">
-        <p class="waiting-text">⏳ Waiting for opponent...</p>
-        <div class="loading-spinner"></div>
-    </div>
-
-    <a href="{{ url_for('index') }}" class="btn btn-outline">← Back to Home</a>
 </div>
 
 <script>
-    function copyToClipboard(code) {
-        navigator.clipboard.writeText(code).then(() => {
-            alert('Room code copied to clipboard!');
-        });
-    }
-
-    // Auto-refresh every 2 seconds to check if guest joined
-    setTimeout(() => {
-        location.reload();
+    setTimeout(function() {
+        window.location.reload();
     }, 2000);
 </script>
 {% endblock %}
