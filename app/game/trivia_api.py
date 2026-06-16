@@ -28,7 +28,7 @@ class TriviaAPI:
                 return TriviaAPI._get_backup_questions(amount, difficulty)
                 
         except (requests.RequestException, ValueError):
-            print("⚠️ Error connecting to Trivia API. Using backup file.")
+            print("Error connecting to Trivia API. Using backup file.")
             return TriviaAPI._get_backup_questions(amount, difficulty)
 
     @staticmethod
@@ -67,5 +67,5 @@ class TriviaAPI:
             return TriviaAPI._clean_data(selected)
             
         except (FileNotFoundError, json.JSONDecodeError):
-            print("❌ Error: Backup file not found or corrupted.")
+            print("Error: Backup file not found or corrupted.")
             return []
